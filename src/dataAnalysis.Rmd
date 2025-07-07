@@ -1,0 +1,201 @@
+Kelompok 7 - Minor
+Raihan Akbar G5401211017
+Daffa Firdaus G5401211054
+Anisa Nurhajiza G5401211074
+---
+
+```{r}
+####==== Data Jawa Barat Tahun 2021====
+data <- read.table(header = T, text = "
+Y	X1	X2	X3	X4	X5	X6
+75.19	39527	98.38	4.74	14.56787984	52.14	62.39
+74.62	35659	99.53	2.58	3.466519841	54.86	57.67
+74.46	121126	99.18	4.37	0.423847242	69.4	57.3
+74.21	59906	99.47	5.35	8.127861283	61.15	65.51
+73.82	45921	99.6	7.24	4.606002337	48.52	58.52
+73.81	107788	98.96	5.21	3.862557785	30.94	59.77
+73.78	22805	98.63	13.1	2.254649323	67.25	65.78
+73.72	35590	98.03	7.15	2.401940782	62.26	59.97
+72.62	32130	94.81	10.71	5.798867505	69.62	57.75
+72.58	26292	98.16	10.03	2.465524855	70.79	58.34
+72.58	37209	99.21	8.25	2.149421175	57.4	64.46
+72.52	26879	92.34	11.3	2.882105346	50.59	55.79
+72.44	72749	96.89	10.03	4.029413573	67.08	56.23
+72.34	31556	97.98	13.13	2.273934163	68.16	60.67
+72.33	98726	98.29	8.95	5.410236058	60.09	59.54
+72.18	22833	97.48	12.3	8.401482417	61.94	67.39
+72.02	27218	99.55	7.97	2.925146872	80.39	60.33
+71.84	44072	98.74	13.04	0.716892961	70.07	59.72
+71.6	28366	99.78	9.65	2.185754932	69.27	72.38
+71.59	23356	99.58	10.65	0.637098442	66.48	70.42
+71.36	45339	99.88	8.13	5.140248299	63.48	76.11
+71.21	25616	98.56	7.7	0.660994874	75.3	70.21
+71.19	22892	99.79	7.11	6.073886091	61.97	76.87
+71.18	69976	99.42	8.83	5.525945097	76.88	76.89
+70.46	25930	99.84	12.33	1.27783026	56.07	75.29
+70.32	20002	99.79	11.18	1.434484648	41.25	69.12
+69.67	20855	99.4	11.15	0.299473999	80.77	66.01
+")
+```
+
+```{r}
+####==== Eksplorasi Data ====
+####==== Analisis Korelasi ====
+library(corrplot)
+plot(data[,1:7], pch = 21)
+jabars.cor <- cor(data[,1:7])
+corrplot(jabars.cor, type="upper")
+cor(data$X1,data$X2,data$X3, data$X4, data$X5, data$X6 method = "pearson")
+```
+
+
+```{r}
+# Analisis Regresi Model Penuh 
+# uji hipotesis simultan
+model<-lm(Y ~ ., data = data)
+model
+
+anova(model)
+summary(model)
+```
+
+p-value : 0.0001567 < 0.05
+maka H0 ditolak. 
+ 
+```{r}
+# uji hipotesis parsial
+reg.x1 <- lm(Y ~ X2+X3+X4+X5+X6, data = data)
+anova(reg.x1, model)
+summary(reg.x1)
+
+reg.x2 <- lm(Y ~ X1+X3+X4+X5+X6, data = data)
+anova(reg.x2, model)
+summary(reg.x2)
+
+reg.x3 <- lm(Y ~ X1+X2+X4+X5+X6, data = data)
+anova(reg.x3, model)
+summary(reg.x3)
+
+reg.x4 <- lm(Y ~ X1+X2+X3+X5+X6, data = data)
+anova(reg.x4, model)
+summary(reg.x4)
+
+reg.x5 <- lm(Y ~ X1+X2+X3+X4+X6, data = data)
+anova(reg.x5, model)
+summary(reg.x5)
+
+reg.x6 <- lm(Y ~ X1+X2+X3+X4+X5, data = data)
+anova(reg.x6, model)
+summary(reg.x6)
+```
+
+
+```{r}
+# Uji Eksploratif
+#  ===== Eksplorasi asumsi =====
+plot(model,1)                # plot sisaan vs yduga
+plot(model,2)                # qq-plot
+plot(x = 1:dim(data)[1],
+     y = model$residuals,
+     type = 'b', 
+     ylab = "Residuals",
+     xlab = "Observation")       # plot sisaan vs urutan
+```
+
+
+```{r}
+### Boxplot
+install.packages("openintro")
+require(openintro)
+```
+
+```{r}
+# ===== Uji Asumsi Formal =====
+# Asumsi GAUSS MARKOV
+
+#Uji Normalitas
+library(normtest)
+library(nortest)
+
+lillie.test(model)
+```
+
+tesis
+
+H0 : Residual berdistribusi normal H1 : Residual tidak berdistribusi
+normal
+
+Tingkat signifikansi = 0.05
+
+Statistik Uji : p-value = 0.6751
+
+Keputusan : Karena p-value (0.6751) \> alpha (0.05), maka gagal tolak H0
+
+Kesimpulan : Dengan tingkat keyakinan 95%, kita yakin bahwa residual
+berdistribusi normal.
+
+```{r}
+#Uji Multikolinieritas
+library(car)
+car::vif(model)
+
+```
+
+Keenam variabel memiliki nilai VIF \< 10 sehingga tidak mengindikasikan
+adanya multikolinieritas
+
+```{r}
+library(lmtest)
+#Uji Homoskedastisitas
+bptest(model)
+
+```
+
+Hipotesis
+
+H0 : Ragam Homogen H1 : Ragam tidak homogen
+
+Tingkat Signifikansi : 0.05
+
+Statistik Uji : pvalue = 0.6135
+
+Keputusan : Karena p-value (0.6135) \> alpha (0.05) maka gagal tolak H0.
+
+Kesimpulan : Dengan tingkat keyakinan 95%, kita yakin bahwa ragam
+homogen (asumsi homoskedastisitas terpenuhi)
+
+
+```{r}
+#Uji Autokorelasi
+lmtest::bgtest(Y ~ ., data=data, order=3) 
+
+```
+nilai LM test yaitu 2.1293 dan nilai-p sebesar 0.546 dengan derajat bebas 3. Dapat diambil keputusan bahwa terima 𝐻0, artinya tidak terdapat autokorelasi antar sisaan pada taraf nyata 5%
+
+
+Menggunakan Stepwise Regression
+
+```{r}
+####==== Pemilihan Peubah Penjelas ====
+### All Possible Regression
+library(olsrr)
+APR<-ols_step_all_possible(model)
+APR
+```
+
+```{r}
+### Plot 
+plot(APR)
+```
+
+```{r}
+###Model Terbaik
+ols_step_backward_p(model)
+olsrr::ols_step_backward_p(model)
+ols_step_best_subset(model)
+```
+
+```{r}
+### Stepwise Regression
+ols_step_both_p(model, details = TRUE)
+```
