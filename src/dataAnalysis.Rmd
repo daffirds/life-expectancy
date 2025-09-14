@@ -1,201 +1,185 @@
-Kelompok 7 - Minor
-Raihan Akbar G5401211017
-Daffa Firdaus G5401211054
-Anisa Nurhajiza G5401211074
+---
+editor_options:
+  markdown:
+    wrap: 72
 ---
 
-```{r}
-####==== Data Jawa Barat Tahun 2021====
-data <- read.table(header = T, text = "
-Y	X1	X2	X3	X4	X5	X6
-75.19	39527	98.38	4.74	14.56787984	52.14	62.39
-74.62	35659	99.53	2.58	3.466519841	54.86	57.67
-74.46	121126	99.18	4.37	0.423847242	69.4	57.3
-74.21	59906	99.47	5.35	8.127861283	61.15	65.51
-73.82	45921	99.6	7.24	4.606002337	48.52	58.52
-73.81	107788	98.96	5.21	3.862557785	30.94	59.77
-73.78	22805	98.63	13.1	2.254649323	67.25	65.78
-73.72	35590	98.03	7.15	2.401940782	62.26	59.97
-72.62	32130	94.81	10.71	5.798867505	69.62	57.75
-72.58	26292	98.16	10.03	2.465524855	70.79	58.34
-72.58	37209	99.21	8.25	2.149421175	57.4	64.46
-72.52	26879	92.34	11.3	2.882105346	50.59	55.79
-72.44	72749	96.89	10.03	4.029413573	67.08	56.23
-72.34	31556	97.98	13.13	2.273934163	68.16	60.67
-72.33	98726	98.29	8.95	5.410236058	60.09	59.54
-72.18	22833	97.48	12.3	8.401482417	61.94	67.39
-72.02	27218	99.55	7.97	2.925146872	80.39	60.33
-71.84	44072	98.74	13.04	0.716892961	70.07	59.72
-71.6	28366	99.78	9.65	2.185754932	69.27	72.38
-71.59	23356	99.58	10.65	0.637098442	66.48	70.42
-71.36	45339	99.88	8.13	5.140248299	63.48	76.11
-71.21	25616	98.56	7.7	0.660994874	75.3	70.21
-71.19	22892	99.79	7.11	6.073886091	61.97	76.87
-71.18	69976	99.42	8.83	5.525945097	76.88	76.89
-70.46	25930	99.84	12.33	1.27783026	56.07	75.29
-70.32	20002	99.79	11.18	1.434484648	41.25	69.12
-69.67	20855	99.4	11.15	0.299473999	80.77	66.01
-")
-```
+# Life Expectancy Analysis
+
+For Regression Analysis Course, IPB University 2023, our team members:
+
+-   Raihan Akbar
+    ([\@RaihanAkbar-math](https://github.com/RaihanAkbar-math))
+-   Daffa Firdaus ([\@daffirds](https://github.com/daffirds))
+-   Anisa Nurhajiza
 
 ```{r}
-####==== Eksplorasi Data ====
-####==== Analisis Korelasi ====
+# libraries
+library(readxl)
 library(corrplot)
-plot(data[,1:7], pch = 21)
-jabars.cor <- cor(data[,1:7])
-corrplot(jabars.cor, type="upper")
-cor(data$X1,data$X2,data$X3, data$X4, data$X5, data$X6 method = "pearson")
+library(knitr)
+library(nortest)
+library(car)
+library(nortest)
+library(lmtest)
+library(olsrr)
 ```
 
+### Data Import
 
 ```{r}
-# Analisis Regresi Model Penuh 
-# uji hipotesis simultan
+data <- read_excel("../data/west-java-life-expectancy-2024.xlsx", skip = 1)[,-1]
+data
+```
+
+### Data Exploration
+
+```{r}
+str(data) #data types
+dim(data) #data dimension
+summary(data) #data summary
+colSums(is.na(data)) #check missing data
+```
+
+### Correlation Analysis
+
+```{r}
+# correlation table
+corr <- round(cor(data),4)
+corr[upper.tri(corr)] <- ""
+kable(corr, align = "c")
+
+# plot
+plot(data, pch = 21)
+
+# heat plot
+corrplot(cor(data), type="upper")
+```
+
+### All variable Regression
+
+```{r}
 model<-lm(Y ~ ., data = data)
 model
 
 anova(model)
+
 summary(model)
 ```
 
-p-value : 0.0001567 < 0.05
-maka H0 ditolak. 
- 
-```{r}
-# uji hipotesis parsial
-reg.x1 <- lm(Y ~ X2+X3+X4+X5+X6, data = data)
-anova(reg.x1, model)
-summary(reg.x1)
+$\text{p-value} = 0.0001567 < 0.05$ so $H_0$ rejected.
 
-reg.x2 <- lm(Y ~ X1+X3+X4+X5+X6, data = data)
-anova(reg.x2, model)
-summary(reg.x2)
+### Best model selection
 
-reg.x3 <- lm(Y ~ X1+X2+X4+X5+X6, data = data)
-anova(reg.x3, model)
-summary(reg.x3)
-
-reg.x4 <- lm(Y ~ X1+X2+X3+X5+X6, data = data)
-anova(reg.x4, model)
-summary(reg.x4)
-
-reg.x5 <- lm(Y ~ X1+X2+X3+X4+X6, data = data)
-anova(reg.x5, model)
-summary(reg.x5)
-
-reg.x6 <- lm(Y ~ X1+X2+X3+X4+X5, data = data)
-anova(reg.x6, model)
-summary(reg.x6)
-```
-
+#### Best model for each variable size
 
 ```{r}
-# Uji Eksploratif
-#  ===== Eksplorasi asumsi =====
-plot(model,1)                # plot sisaan vs yduga
-plot(model,2)                # qq-plot
-plot(x = 1:dim(data)[1],
-     y = model$residuals,
-     type = 'b', 
-     ylab = "Residuals",
-     xlab = "Observation")       # plot sisaan vs urutan
-```
-
-
-```{r}
-### Boxplot
-install.packages("openintro")
-require(openintro)
-```
-
-```{r}
-# ===== Uji Asumsi Formal =====
-# Asumsi GAUSS MARKOV
-
-#Uji Normalitas
-library(normtest)
-library(nortest)
-
-lillie.test(model)
-```
-
-tesis
-
-H0 : Residual berdistribusi normal H1 : Residual tidak berdistribusi
-normal
-
-Tingkat signifikansi = 0.05
-
-Statistik Uji : p-value = 0.6751
-
-Keputusan : Karena p-value (0.6751) \> alpha (0.05), maka gagal tolak H0
-
-Kesimpulan : Dengan tingkat keyakinan 95%, kita yakin bahwa residual
-berdistribusi normal.
-
-```{r}
-#Uji Multikolinieritas
-library(car)
-car::vif(model)
-
-```
-
-Keenam variabel memiliki nilai VIF \< 10 sehingga tidak mengindikasikan
-adanya multikolinieritas
-
-```{r}
-library(lmtest)
-#Uji Homoskedastisitas
-bptest(model)
-
-```
-
-Hipotesis
-
-H0 : Ragam Homogen H1 : Ragam tidak homogen
-
-Tingkat Signifikansi : 0.05
-
-Statistik Uji : pvalue = 0.6135
-
-Keputusan : Karena p-value (0.6135) \> alpha (0.05) maka gagal tolak H0.
-
-Kesimpulan : Dengan tingkat keyakinan 95%, kita yakin bahwa ragam
-homogen (asumsi homoskedastisitas terpenuhi)
-
-
-```{r}
-#Uji Autokorelasi
-lmtest::bgtest(Y ~ ., data=data, order=3) 
-
-```
-nilai LM test yaitu 2.1293 dan nilai-p sebesar 0.546 dengan derajat bebas 3. Dapat diambil keputusan bahwa terima 𝐻0, artinya tidak terdapat autokorelasi antar sisaan pada taraf nyata 5%
-
-
-Menggunakan Stepwise Regression
-
-```{r}
-####==== Pemilihan Peubah Penjelas ====
-### All Possible Regression
-library(olsrr)
-APR<-ols_step_all_possible(model)
-APR
-```
-
-```{r}
-### Plot 
-plot(APR)
-```
-
-```{r}
-###Model Terbaik
-ols_step_backward_p(model)
-olsrr::ols_step_backward_p(model)
 ols_step_best_subset(model)
 ```
 
+#### Backward selection
+
 ```{r}
-### Stepwise Regression
-ols_step_both_p(model, details = TRUE)
+ols_step_backward_p(model, details = TRUE)
 ```
+
+The best model is selected based on the highest R-squared value.
+Therefore, we chose **Model index 3** which uses the variables
+$X_3,X_4,X_6$ as the best model.
+
+```{r}
+model3 <- lm(Y ~ X3+X4+X6, data = data) #best model
+```
+
+### Model Assumptions
+
+```{r}
+# Assumption exploration
+plot(model3,1)                # residuals vs fitted
+plot(model3,2)                # qq-plot
+plot(x = 1:dim(data)[1],
+     y = model3$residuals,
+     type = 'b', 
+     ylab = "Residuals",
+     xlab = "Observation")       # residuals vs obs
+```
+
+#### Normality test
+
+```{r}
+lillie.test(model3$residuals) #Kolmogorov-Smirnov test
+```
+
+**Hypotheses**
+
+$H_0$: The residuals are normally distributed.
+
+$H_1$: The residuals are not normally distributed.
+
+Significance level = 0.05
+
+Test statistic: p-value = 0.1865
+
+Decision: Since the p-value (0.1865) \> $\alpha$ (0.05), we fail to
+reject $H_0$.
+
+Conclusion: At the 95% confidence level, we conclude that the residuals
+are normally distributed.
+
+#### Multicollinearity test
+
+```{r}
+vif(model3)
+
+```
+
+All 3 variables have VIF values less than 10, indicating no presence of
+multicollinearity.
+
+#### Homoscedasticity test
+
+```{r}
+bptest(model3) #Breusch-Pagan test
+
+```
+
+**Hypotheses**
+
+$H_0$: The variance is homogeneous
+
+$H_1$: The variance is not homogeneous
+
+Significance level: 0.05
+
+Test statistic: p-value = 0.6135
+
+Decision: Since the p-value (0.6135) \> $\alpha$ (0.05), we fail to
+reject $H_0$.
+
+Conclusion: At the 95% confidence level, we conclude that the variance
+is homogeneous (the homoscedasticity assumption is satisfied).
+
+#### Autocorrelation Test
+
+```{r}
+bgtest(model3, order=3) #Breusch-Godfrey test 
+
+```
+
+The LM test statistic is 2.1293 with a p-value of 0.546 and 3 degrees of
+freedom. The decision is to accept $H_0$, meaning that there is no
+autocorrelation among the residuals at the 5% significance level.
+
+### Conclusion
+
+The best regression equation obtained in this study is: $$
+\hat{Y}=80.8312−0.1990 X_3+0.1354 X_4−0.1104 X_6
+$$ with
+
+$\hat{Y}=$ Life expectancy prediction (years)
+
+$X_3=$ Poverty rate (%)
+
+$X_4=$ Complete immunization rate (%)
+
+$X_6=$ Education index (unit)
