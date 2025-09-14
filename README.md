@@ -1,11 +1,8 @@
-This is our final project in the Regression Analysis course that uses Multiple Linear Regression to explain correlations between Life Expectancy with several variables. Sofwares that we use are Microsoft Excel for data cleaning and sorting and R with IDE RStudio to modelling, visualizing and giving outputs. Our supervisor is Akbar Rizki, Sachnaz Desta Oktarina and M. Rizky Nurhambali, they helped us a lot with this project!
-
-Check this out!
 
 # 📊 Life Expectancy Analysis
 
 ## 📌 Overview
-This is our final project for **Regression Analysis Course** at IPB University. The project explores the correlations between Life Expectancy with several variables using Multiple Linear Regression. Sofwares that we used are Microsoft Excel for data cleaning and sorting and R with IDE RStudio to modelling, visualizing and giving outputs. Our supervisors are Akbar Rizki, Sachnaz Desta Oktarina and M. Rizky Nurhambali, they helped us a lot with this project!
+This is our final project for **Regression Analysis Course** at IPB University. The project explores the correlations between Life Expectancy with several variables using Multiple Linear Regression. 
 
 ## 📂 Repository Structure
 ```
@@ -64,7 +61,7 @@ The full report paper and knitted HTML output can be found in the `report/` fold
 *   Daffa Firdaus ([\@daffirds](https://github.com/daffirds))
 *   Anisa Nurhajiza
 
-Supervised by Akbar Rizki, Sachnaz Desta Oktarina, and M. Rizky Nurhambali, who helped us a lot and guided us throughout this project!
+Supervised by Akbar Rizki, Sachnaz Desta Oktarina, and M. Rizky Nurhambali, who helped us a lot and guided us throughout this project.
 
 ## 📜 License
 
